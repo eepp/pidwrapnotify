@@ -10,6 +10,16 @@ this happens.
 
 Original idea by [Simon Marchi](https://github.com/simark).
 
+
+requirements
+------------
+
+  * Linux >= 3.15
+  * `CONFIG_TRACEPOINT` and `CONFIG_MODULES` kernel options enabled
+    (both are enabled in pretty much all Linux distributions)
+  * incremental PID allocation, without PID reuse (default scheme)
+
+
 using
 -----
 
