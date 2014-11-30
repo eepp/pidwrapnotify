@@ -8,6 +8,7 @@ is lower than the previous highest PID). The user space
 daemon emits a D-Bus (standard) desktop notification when
 this happens.
 
+Original idea by [Simon Marchi](https://github.com/simark).
 
 using
 -----
