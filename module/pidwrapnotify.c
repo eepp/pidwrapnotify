@@ -13,7 +13,7 @@ static struct tracepoint *sched_process_fork_tp;
 static pid_t last_pid;
 static dev_t devnum;
 static struct cdev cdev;
-static bool wrapped = false;
+static bool wrapped;
 static DECLARE_WAIT_QUEUE_HEAD(wq);
 
 static void sched_process_fork_probe(void *data, struct task_struct *parent,
@@ -123,6 +123,9 @@ static void destroy_cdev(void)
 static int __init init(void)
 {
 	int ret;
+
+	/* reset state */
+	wrapped = false;
 
 	/* connect sched_process_fork probe */
 	ret = connect_probes();
