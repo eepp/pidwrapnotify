@@ -7,17 +7,24 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/uaccess.h>
+#include <linux/wait.h>
 
 static struct tracepoint *sched_process_fork_tp;
 static pid_t last_pid;
 static dev_t devnum;
 static struct cdev cdev;
+static bool wrapped = false;
+static DECLARE_WAIT_QUEUE_HEAD(wq);
 
 static void sched_process_fork_probe(void *data, struct task_struct *parent,
 				     struct task_struct *child)
 {
-	if (child->pid < last_pid)
-		pr_info("wrapped!\n");
+	if (child->pid < last_pid - 1000) {
+		pr_debug("pidwrapnotify: wrapping: child=%d last=%d\n",
+			 child->pid, last_pid);
+		wrapped = true;
+		wake_up_interruptible(&wq);
+	}
 
 	last_pid = child->pid;
 }
@@ -56,12 +63,10 @@ static int cdev_open(struct inode *inode, struct file *filp)
 static ssize_t cdev_read(struct file *fp, char *buf, size_t length,
 			 loff_t *ppos)
 {
-	if (length < 4)
-		return 0;
+	wait_event_interruptible(wq, wrapped);
+	wrapped = false;
 
-	copy_to_user(buf, "allo", 4);
-
-	return 4;
+	return 0;
 }
 
 static int cdev_close(struct inode *inode, struct file *filp)
@@ -96,7 +101,7 @@ static int create_cdev(void)
 	if (ret)
 		goto err_alloc_region;
 
-	pr_info("pidwrapnotify: added char device (%d, %d)\n",
+	pr_info("pidwrapnotify: added char device %d:%d\n",
 		MAJOR(devnum), MINOR(devnum));
 
 	return 0;
