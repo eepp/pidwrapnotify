@@ -1,6 +1,14 @@
 import notify2
 
 
+def send_pid_wrap_notification():
+    # got it: notify
+    body = 'Your system is starting a new round of PIDs.'
+    n = notify2.Notification('PID wrapped!', body,
+                             icon='notification-message-im')
+    n.show()
+
+
 def _run_daemon():
     notify2.init('pidwrapnotifyd')
 
@@ -9,11 +17,7 @@ def _run_daemon():
             # wait for event
             f.read(0)
 
-            # got it: notify
-            body = 'Your system is starting a new round of PIDs.'
-            n = notify2.Notification('PID wrapped!', body,
-                                     'notification-message-im')
-            n.show()
+            send_pid_wrap_notification()
 
 
 def run():
