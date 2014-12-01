@@ -4,8 +4,7 @@ import notify2
 def send_pid_wrap_notification():
     # got it: notify
     body = 'Your system is starting a new round of PIDs.'
-    n = notify2.Notification('PID wrapped!', body,
-                             icon='notification-message-im')
+    n = notify2.Notification('PID wrapped!', body)
     n.show()
 
 
